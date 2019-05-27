@@ -1,0 +1,587 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ROYALEPLUSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="CHATS">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+          </Key>
+          <Property Name="ID_CHAT" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TIPO" Type="varchar" MaxLength="20" />
+          <Property Name="NOMBRE" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="MENSAJES">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+            <PropertyRef Name="TIEMPO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="int" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="int" Nullable="false" />
+          <Property Name="TIEMPO" Type="datetime" Nullable="false" />
+          <Property Name="MENSAJE" Type="varchar" MaxLength="8000" />
+          <Property Name="ID_MENSAJE" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MENSAJES_LEIDOS">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+            <PropertyRef Name="TIEMPO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="int" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="int" Nullable="false" />
+          <Property Name="TIEMPO" Type="datetime" Nullable="false" />
+          <Property Name="LEIDO" Type="bit" />
+          <Property Name="ID_MENSAJE" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PARTICIPANTES">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="int" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="USUARIOS">
+          <Key>
+            <PropertyRef Name="ID_USUARIO" />
+          </Key>
+          <Property Name="ID_USUARIO" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NOMBRE" Type="nvarchar" MaxLength="12" />
+          <Property Name="CONTRASENA" Type="nvarchar" MaxLength="40" />
+          <Property Name="TIPO" Type="char" MaxLength="1" />
+          <Property Name="ACTIVO" Type="bit" />
+          <Property Name="ULTIMA_CONEXION" Type="datetime" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_MENSAJES_CHATS">
+          <End Role="CHATS" Type="Self.CHATS" Multiplicity="1" />
+          <End Role="MENSAJES" Type="Self.MENSAJES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CHATS">
+              <PropertyRef Name="ID_CHAT" />
+            </Principal>
+            <Dependent Role="MENSAJES">
+              <PropertyRef Name="ID_CHAT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_LEIDOS_CHATS">
+          <End Role="CHATS" Type="Self.CHATS" Multiplicity="1" />
+          <End Role="MENSAJES_LEIDOS" Type="Self.MENSAJES_LEIDOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CHATS">
+              <PropertyRef Name="ID_CHAT" />
+            </Principal>
+            <Dependent Role="MENSAJES_LEIDOS">
+              <PropertyRef Name="ID_CHAT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_LEIDOS_USUARIOS">
+          <End Role="USUARIOS" Type="Self.USUARIOS" Multiplicity="1" />
+          <End Role="MENSAJES_LEIDOS" Type="Self.MENSAJES_LEIDOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="MENSAJES_LEIDOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_PARTICIPANTES">
+          <End Role="PARTICIPANTES" Type="Self.PARTICIPANTES" Multiplicity="1" />
+          <End Role="MENSAJES" Type="Self.MENSAJES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PARTICIPANTES">
+              <PropertyRef Name="ID_CHAT" />
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="MENSAJES">
+              <PropertyRef Name="ID_CHAT" />
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PARTICIPANTES_USUARIOS">
+          <End Role="USUARIOS" Type="Self.USUARIOS" Multiplicity="1" />
+          <End Role="PARTICIPANTES" Type="Self.PARTICIPANTES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="PARTICIPANTES">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="PA_ACTUALIZAR_ULTIMA_CONEXION" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="int" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_INSERTAR_MENSAJE" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_CHAT" Type="int" Mode="In" />
+          <Parameter Name="ID_USUARIO" Type="int" Mode="In" />
+          <Parameter Name="CUERPO_MENSAJE" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_LOGIN" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="NOMBRE" Type="varchar" Mode="In" />
+          <Parameter Name="CONTRASENNA" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_MARCAR_TODOS_COMO_LEIDOS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_CHAT" Type="int" Mode="In" />
+          <Parameter Name="ID_USUARIO" Type="int" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_100_MENSAJES_DE_UN_CHAT" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="GRUPO" Type="int" Mode="In" />
+          <Parameter Name="ID_CHAT" Type="int" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_MENSAJES_NUEVOS" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_CHAT" Type="int" Mode="In" />
+          <Parameter Name="ID_MENSAJE" Type="int" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO2" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO3" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO4" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO5" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <Function Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO6" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="ID_USUARIO" Type="varchar" Mode="In" />
+          <Parameter Name="RETCODE" Type="int" Mode="InOut" />
+          <Parameter Name="MENSAJE" Type="varchar" Mode="InOut" />
+        </Function>
+        <EntityContainer Name="ROYALEPLUSModelStoreContainer">
+          <EntitySet Name="CHATS" EntityType="Self.CHATS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MENSAJES" EntityType="Self.MENSAJES" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MENSAJES_LEIDOS" EntityType="Self.MENSAJES_LEIDOS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PARTICIPANTES" EntityType="Self.PARTICIPANTES" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="USUARIOS" EntityType="Self.USUARIOS" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_MENSAJES_CHATS" Association="Self.FK_MENSAJES_CHATS">
+            <End Role="CHATS" EntitySet="CHATS" />
+            <End Role="MENSAJES" EntitySet="MENSAJES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_LEIDOS_CHATS" Association="Self.FK_MENSAJES_LEIDOS_CHATS">
+            <End Role="CHATS" EntitySet="CHATS" />
+            <End Role="MENSAJES_LEIDOS" EntitySet="MENSAJES_LEIDOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_LEIDOS_USUARIOS" Association="Self.FK_MENSAJES_LEIDOS_USUARIOS">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="MENSAJES_LEIDOS" EntitySet="MENSAJES_LEIDOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_PARTICIPANTES" Association="Self.FK_MENSAJES_PARTICIPANTES">
+            <End Role="PARTICIPANTES" EntitySet="PARTICIPANTES" />
+            <End Role="MENSAJES" EntitySet="MENSAJES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PARTICIPANTES_USUARIOS" Association="Self.FK_PARTICIPANTES_USUARIOS">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="PARTICIPANTES" EntitySet="PARTICIPANTES" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ROYALEPLUSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="ROYALEPLUSEntities" annotation:LazyLoadingEnabled="true" >
+          <EntitySet Name="CHATS" EntityType="ROYALEPLUSModel.CHATS" />
+          <EntitySet Name="MENSAJES" EntityType="ROYALEPLUSModel.MENSAJES" />
+          <EntitySet Name="MENSAJES_LEIDOS" EntityType="ROYALEPLUSModel.MENSAJES_LEIDOS" />
+          <EntitySet Name="PARTICIPANTES" EntityType="ROYALEPLUSModel.PARTICIPANTES" />
+          <EntitySet Name="USUARIOS" EntityType="ROYALEPLUSModel.USUARIOS" />
+          <AssociationSet Name="FK_MENSAJES_CHATS" Association="ROYALEPLUSModel.FK_MENSAJES_CHATS">
+            <End Role="CHATS" EntitySet="CHATS" />
+            <End Role="MENSAJES" EntitySet="MENSAJES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_LEIDOS_CHATS" Association="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_CHATS">
+            <End Role="CHATS" EntitySet="CHATS" />
+            <End Role="MENSAJES_LEIDOS" EntitySet="MENSAJES_LEIDOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_PARTICIPANTES" Association="ROYALEPLUSModel.FK_MENSAJES_PARTICIPANTES">
+            <End Role="PARTICIPANTES" EntitySet="PARTICIPANTES" />
+            <End Role="MENSAJES" EntitySet="MENSAJES" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MENSAJES_LEIDOS_USUARIOS" Association="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_USUARIOS">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="MENSAJES_LEIDOS" EntitySet="MENSAJES_LEIDOS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PARTICIPANTES_USUARIOS" Association="ROYALEPLUSModel.FK_PARTICIPANTES_USUARIOS">
+            <End Role="USUARIOS" EntitySet="USUARIOS" />
+            <End Role="PARTICIPANTES" EntitySet="PARTICIPANTES" />
+          </AssociationSet>
+          <FunctionImport Name="PA_INSERTAR_MENSAJE">
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="ID_USUARIO" Mode="In" Type="Int32" />
+            <Parameter Name="CUERPO_MENSAJE" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_LOGIN">
+            <Parameter Name="NOMBRE" Mode="In" Type="String" />
+            <Parameter Name="CONTRASENNA" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO2">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO3">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO4">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO5">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO6" ReturnType="Collection(ROYALEPLUSModel.PA_OBTENER_CHATS)">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="String" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_ACTUALIZAR_ULTIMA_CONEXION">
+            <Parameter Name="ID_USUARIO" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_100_MENSAJES_DE_UN_CHAT">
+            <Parameter Name="GRUPO" Mode="In" Type="Int32" />
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_100_MENSAJES_DE_UN_CHAT1" ReturnType="Collection(ROYALEPLUSModel.PA_OBTENER_100_MENSAJES)">
+            <Parameter Name="GRUPO" Mode="In" Type="Int32" />
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_MENSAJES_NUEVOS">
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="ID_MENSAJE" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_OBTENER_MENSAJES_NUEVOS1" ReturnType="Collection(ROYALEPLUSModel.PA_OBTENER_100_MENSAJES)">
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="ID_MENSAJE" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="PA_MARCAR_TODOS_COMO_LEIDOS">
+            <Parameter Name="ID_CHAT" Mode="In" Type="Int32" />
+            <Parameter Name="ID_USUARIO" Mode="In" Type="Int32" />
+            <Parameter Name="RETCODE" Mode="InOut" Type="Int32" />
+            <Parameter Name="MENSAJE" Mode="InOut" Type="String" />
+          </FunctionImport>
+        </EntityContainer>
+        <EntityType Name="CHATS">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+          </Key>
+          <Property Name="ID_CHAT" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TIPO" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="NOMBRE" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="MENSAJES" Relationship="ROYALEPLUSModel.FK_MENSAJES_CHATS" FromRole="CHATS" ToRole="MENSAJES" />
+          <NavigationProperty Name="MENSAJES_LEIDOS" Relationship="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_CHATS" FromRole="CHATS" ToRole="MENSAJES_LEIDOS" />
+        </EntityType>
+        <EntityType Name="MENSAJES">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+            <PropertyRef Name="TIEMPO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="Int32" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="Int32" Nullable="false" />
+          <Property Name="TIEMPO" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="MENSAJE" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="CHATS" Relationship="ROYALEPLUSModel.FK_MENSAJES_CHATS" FromRole="MENSAJES" ToRole="CHATS" />
+          <NavigationProperty Name="PARTICIPANTES" Relationship="ROYALEPLUSModel.FK_MENSAJES_PARTICIPANTES" FromRole="MENSAJES" ToRole="PARTICIPANTES" />
+          <Property Name="ID_MENSAJE" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+        <EntityType Name="MENSAJES_LEIDOS">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+            <PropertyRef Name="TIEMPO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="Int32" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="Int32" Nullable="false" />
+          <Property Name="TIEMPO" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="LEIDO" Type="Boolean" />
+          <NavigationProperty Name="CHATS" Relationship="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_CHATS" FromRole="MENSAJES_LEIDOS" ToRole="CHATS" />
+          <NavigationProperty Name="USUARIOS" Relationship="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_USUARIOS" FromRole="MENSAJES_LEIDOS" ToRole="USUARIOS" />
+          <Property Name="ID_MENSAJE" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PARTICIPANTES">
+          <Key>
+            <PropertyRef Name="ID_CHAT" />
+            <PropertyRef Name="ID_USUARIO" />
+          </Key>
+          <Property Name="ID_CHAT" Type="Int32" Nullable="false" />
+          <Property Name="ID_USUARIO" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="MENSAJES" Relationship="ROYALEPLUSModel.FK_MENSAJES_PARTICIPANTES" FromRole="PARTICIPANTES" ToRole="MENSAJES" />
+          <NavigationProperty Name="USUARIOS" Relationship="ROYALEPLUSModel.FK_PARTICIPANTES_USUARIOS" FromRole="PARTICIPANTES" ToRole="USUARIOS" />
+        </EntityType>
+        <EntityType Name="USUARIOS">
+          <Key>
+            <PropertyRef Name="ID_USUARIO" />
+          </Key>
+          <Property Name="ID_USUARIO" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NOMBRE" Type="String" MaxLength="12" FixedLength="false" Unicode="true" />
+          <Property Name="CONTRASENA" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="TIPO" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="ACTIVO" Type="Boolean" />
+          <Property Name="ULTIMA_CONEXION" Type="DateTime" Precision="3" Nullable="false" />
+          <NavigationProperty Name="MENSAJES_LEIDOS" Relationship="ROYALEPLUSModel.FK_MENSAJES_LEIDOS_USUARIOS" FromRole="USUARIOS" ToRole="MENSAJES_LEIDOS" />
+          <NavigationProperty Name="PARTICIPANTES" Relationship="ROYALEPLUSModel.FK_PARTICIPANTES_USUARIOS" FromRole="USUARIOS" ToRole="PARTICIPANTES" />
+        </EntityType>
+        <Association Name="FK_MENSAJES_CHATS">
+          <End Type="ROYALEPLUSModel.CHATS" Role="CHATS" Multiplicity="1" />
+          <End Type="ROYALEPLUSModel.MENSAJES" Role="MENSAJES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CHATS">
+              <PropertyRef Name="ID_CHAT" />
+            </Principal>
+            <Dependent Role="MENSAJES">
+              <PropertyRef Name="ID_CHAT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_LEIDOS_CHATS">
+          <End Type="ROYALEPLUSModel.CHATS" Role="CHATS" Multiplicity="1" />
+          <End Type="ROYALEPLUSModel.MENSAJES_LEIDOS" Role="MENSAJES_LEIDOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CHATS">
+              <PropertyRef Name="ID_CHAT" />
+            </Principal>
+            <Dependent Role="MENSAJES_LEIDOS">
+              <PropertyRef Name="ID_CHAT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_PARTICIPANTES">
+          <End Type="ROYALEPLUSModel.PARTICIPANTES" Role="PARTICIPANTES" Multiplicity="1" />
+          <End Type="ROYALEPLUSModel.MENSAJES" Role="MENSAJES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PARTICIPANTES">
+              <PropertyRef Name="ID_CHAT" />
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="MENSAJES">
+              <PropertyRef Name="ID_CHAT" />
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MENSAJES_LEIDOS_USUARIOS">
+          <End Type="ROYALEPLUSModel.USUARIOS" Role="USUARIOS" Multiplicity="1" />
+          <End Type="ROYALEPLUSModel.MENSAJES_LEIDOS" Role="MENSAJES_LEIDOS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="MENSAJES_LEIDOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PARTICIPANTES_USUARIOS">
+          <End Type="ROYALEPLUSModel.USUARIOS" Role="USUARIOS" Multiplicity="1" />
+          <End Type="ROYALEPLUSModel.PARTICIPANTES" Role="PARTICIPANTES" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="USUARIOS">
+              <PropertyRef Name="ID_USUARIO" />
+            </Principal>
+            <Dependent Role="PARTICIPANTES">
+              <PropertyRef Name="ID_USUARIO" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="PA_OBTENER_CHATS" >
+          <Property Type="Int32" Name="ID_CHAT" Nullable="false" />
+          <Property Type="String" Name="ULTIMO_MENSAJE" Nullable="true" />
+          <Property Type="String" Name="ULTIMO_EN_HABLAR" Nullable="true" />
+          <Property Type="DateTime" Name="ULTIMO_TIEMPO" Nullable="true" />
+          <Property Type="String" Name="NOMBRE_CHAT" Nullable="true" />
+          <Property Type="String" Name="TIPO" Nullable="true" />
+          <Property Type="Int32" Name="MENSAJES_SIN_LEER" Nullable="true" />
+          <Property Type="Int32" Name="ID_CONTRARIO" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="PA_OBTENER_100_MENSAJES" >
+          <Property Type="Int32" Name="ID_MENSAJE" Nullable="false" />
+          <Property Type="Int32" Name="ID_CHAT" Nullable="false" />
+          <Property Type="Int32" Name="ID_USUARIO" Nullable="false" />
+          <Property Type="String" Name="NOMBRE_USUARIO" Nullable="false" />
+          <Property Type="DateTime" Name="TIEMPO" Nullable="false" />
+          <Property Type="Boolean" Name="LEIDO" Nullable="false" />
+          <Property Type="String" Name="MENSAJE" Nullable="false" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ROYALEPLUSModelStoreContainer" CdmEntityContainer="ROYALEPLUSEntities" >
+          <EntitySetMapping Name="CHATS">
+            <EntityTypeMapping TypeName="ROYALEPLUSModel.CHATS">
+              <MappingFragment StoreEntitySet="CHATS">
+                <ScalarProperty Name="NOMBRE" ColumnName="NOMBRE" />
+                <ScalarProperty Name="TIPO" ColumnName="TIPO" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MENSAJES">
+            <EntityTypeMapping TypeName="ROYALEPLUSModel.MENSAJES">
+              <MappingFragment StoreEntitySet="MENSAJES">
+                <ScalarProperty Name="ID_MENSAJE" ColumnName="ID_MENSAJE" />
+                <ScalarProperty Name="MENSAJE" ColumnName="MENSAJE" />
+                <ScalarProperty Name="TIEMPO" ColumnName="TIEMPO" />
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MENSAJES_LEIDOS">
+            <EntityTypeMapping TypeName="ROYALEPLUSModel.MENSAJES_LEIDOS">
+              <MappingFragment StoreEntitySet="MENSAJES_LEIDOS">
+                <ScalarProperty Name="ID_MENSAJE" ColumnName="ID_MENSAJE" />
+                <ScalarProperty Name="LEIDO" ColumnName="LEIDO" />
+                <ScalarProperty Name="TIEMPO" ColumnName="TIEMPO" />
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PARTICIPANTES">
+            <EntityTypeMapping TypeName="ROYALEPLUSModel.PARTICIPANTES">
+              <MappingFragment StoreEntitySet="PARTICIPANTES">
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="USUARIOS">
+            <EntityTypeMapping TypeName="ROYALEPLUSModel.USUARIOS">
+              <MappingFragment StoreEntitySet="USUARIOS">
+                <ScalarProperty Name="ULTIMA_CONEXION" ColumnName="ULTIMA_CONEXION" />
+                <ScalarProperty Name="ACTIVO" ColumnName="ACTIVO" />
+                <ScalarProperty Name="TIPO" ColumnName="TIPO" />
+                <ScalarProperty Name="CONTRASENA" ColumnName="CONTRASENA" />
+                <ScalarProperty Name="NOMBRE" ColumnName="NOMBRE" />
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="PA_INSERTAR_MENSAJE" FunctionName="ROYALEPLUSModel.Store.PA_INSERTAR_MENSAJE" />
+          <FunctionImportMapping FunctionImportName="PA_LOGIN" FunctionName="ROYALEPLUSModel.Store.PA_LOGIN" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO2" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO2" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO3" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO3" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO4" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO4" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO5" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO5" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO6" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_TODOS_CHATS_DE_UN_USUARIO6" >
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="ROYALEPLUSModel.PA_OBTENER_CHATS" />
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="PA_ACTUALIZAR_ULTIMA_CONEXION" FunctionName="ROYALEPLUSModel.Store.PA_ACTUALIZAR_ULTIMA_CONEXION" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_100_MENSAJES_DE_UN_CHAT" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_100_MENSAJES_DE_UN_CHAT" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_100_MENSAJES_DE_UN_CHAT1" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_100_MENSAJES_DE_UN_CHAT">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="ROYALEPLUSModel.PA_OBTENER_100_MENSAJES">
+                <ScalarProperty Name="ID_MENSAJE" ColumnName="ID_MENSAJE" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="NOMBRE_USUARIO" ColumnName="NOMBRE_USUARIO" />
+                <ScalarProperty Name="TIEMPO" ColumnName="TIEMPO" />
+                <ScalarProperty Name="LEIDO" ColumnName="LEIDO" />
+                <ScalarProperty Name="MENSAJE" ColumnName="MENSAJE" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_MENSAJES_NUEVOS" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_MENSAJES_NUEVOS" />
+          <FunctionImportMapping FunctionImportName="PA_OBTENER_MENSAJES_NUEVOS1" FunctionName="ROYALEPLUSModel.Store.PA_OBTENER_MENSAJES_NUEVOS">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="ROYALEPLUSModel.PA_OBTENER_100_MENSAJES">
+                <ScalarProperty Name="ID_MENSAJE" ColumnName="ID_MENSAJE" />
+                <ScalarProperty Name="ID_CHAT" ColumnName="ID_CHAT" />
+                <ScalarProperty Name="ID_USUARIO" ColumnName="ID_USUARIO" />
+                <ScalarProperty Name="NOMBRE_USUARIO" ColumnName="NOMBRE_USUARIO" />
+                <ScalarProperty Name="TIEMPO" ColumnName="TIEMPO" />
+                <ScalarProperty Name="LEIDO" ColumnName="LEIDO" />
+                <ScalarProperty Name="MENSAJE" ColumnName="MENSAJE" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="PA_MARCAR_TODOS_COMO_LEIDOS" FunctionName="ROYALEPLUSModel.Store.PA_MARCAR_TODOS_COMO_LEIDOS" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
